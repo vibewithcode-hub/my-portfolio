@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Suraj | Python & AI/ML Developer</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg-deep: #05070c;
+  --panel-bg: rgba(16, 23, 38, 0.7);
+  --cyan: #00e5ff;
+  --violet: #8a2be2;
+  --text-main: #f8fafc;
+  --text-sub: #94a3b8;
+  --border: rgba(255, 255, 255, 0.08);
+  --font-main: "Plus Jakarta Sans", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+}
+
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html{
+  scroll-behavior: smooth;
+  scroll-snap-type: y mandatory;
+  height: 100%;
+}
+
+body{
+  background: var(--bg-deep);
+  color: var(--text-main);
+  font-family: var(--font-main);
+  overflow-x: hidden;
+  height: 100%;
+}
+
+canvas#particles{
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.ambient-grid{
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 45px 45px;
+}
+
+.glow-orb{
+  position: fixed;
+  width: 380px;
+  height: 380px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 229, 255, 0.12), rgba(138, 43, 226, 0.06), transparent 70%);
+  filter: blur(80px);
+  left: 50%;
+  top: 40%;
+  transform: translate(-50%, -50%);
+  animation: pulseGlow 9s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes pulseGlow{
+  0%{ transform: translate(-50%, -50%) scale(0.85); opacity: 0.6; }
+  100%{ transform: translate(-50%, -50%) scale(1.15); opacity: 0.95; }
+}
+
+.vignette{
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  box-shadow: inset 0 0 120px rgba(0,0,0,0.85);
+}
+
+.audio-btn{
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 50;
+  background: rgba(11, 15, 25, 0.85);
+  border: 1px solid var(--border);
+  color: var(--text-sub);
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.audio-btn:hover{
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+
+.audio-dot{
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-sub);
+}
+
+.audio-dot.playing{
+  background: var(--cyan);
+  box-shadow: 0 0 8px var(--cyan);
+}
+
+section{
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 50px 20px;
+  position: relative;
+  z-index: 10;
+  scroll-snap-align: start;
+}
+
+.content{
+  width: 100%;
+  max-width: 650px;
+  text-align: center;
+}
+
+.hidden{
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.visible{
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* User Photo Frame */
+.avatar-box{
+  position: relative;
+  width: 140px;
+  height: 140px;
+  margin: 0 auto 20px auto;
+}
+
+.avatar-box img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid var(--cyan);
+  box-shadow: 0 0 25px rgba(0, 229, 255, 0.35);
+}
+
+.avatar-halo{
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 1px dashed rgba(0, 229, 255, 0.5);
+  animation: rotateHalo 16s linear infinite;
+}
+
+@keyframes rotateHalo{
+  to{ transform: rotate(360deg); }
+}
+
+.badge{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(0, 229, 255, 0.08);
+  border: 1px solid rgba(0, 229, 255, 0.25);
+  color: var(--cyan);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 16px;
+}
+
+.badge-dot{
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--cyan);
+  box-shadow: 0 0 8px var(--cyan);
+}
+
+h1{
+  font-size: clamp(40px, 9vw, 68px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  margin-bottom: 14px;
+}
+
+h1 span{
+  background: linear-gradient(135deg, var(--cyan), var(--violet));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.sub-title{
+  color: var(--text-sub);
+  font-size: clamp(15px, 3.8vw, 18px);
+  line-height: 1.6;
+  max-width: 500px;
+  margin: 0 auto 26px auto;
+}
+
+.section-label{
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--cyan);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  margin-bottom: 6px;
+}
+
+.section-heading{
+  font-size: clamp(28px, 6vw, 38px);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.panel{
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 22px;
+  text-align: left;
+  backdrop-filter: blur(14px);
+  margin-top: 15px;
+}
+
+.panel h3{
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.panel h3 span{
+  font-size: 11px;
+  color: var(--cyan);
+  font-family: var(--font-mono);
+  font-weight: 400;
+}
+
+.data-list{
+  list-style: none;
+}
+
+.data-list li{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 14px;
+}
+
+.data-list li:last-child{
+  border-bottom: none;
+}
+
+.data-list .key{
+  color: var(--text-sub);
+}
+
+.data-list .val{
+  font-weight: 500;
+  color: var(--text-main);
+}
+
+.tag-group{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag{
+  padding: 5px 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--cyan);
+}
+
+.terminal-cycler{
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cycler-line{
+  font-size: clamp(24px, 5.5vw, 36px);
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--text-main);
+  opacity: 0;
+  transform: translateY(15px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.cycler-line.show{
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.cycler-line span{
+  color: var(--cyan);
+}
+
+.btn{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 50px;
+  padding: 0 28px;
+  border-radius: 999px;
+  border: 1px solid var(--cyan);
+  background: rgba(0, 229, 255, 0.12);
+  color: #fff;
+  font-family: var(--font-main);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+.btn:hover{
+  background: rgba(0, 229, 255, 0.25);
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.btn:active{
+  transform: scale(0.97);
+}
+
+.bottom-note{
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-sub);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+@media(max-width: 500px){
+  section{ padding: 45px 16px; }
+  .panel{ padding: 18px 15px; }
+}
+</style>
+</head>
+
+<body>
+
+<audio id="bgAudio" loop preload="none">
+  <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-study-112191.mp3" type="audio/mpeg">
+</audio>
+
+<button class="audio-btn" onclick="toggleAudio()">
+  <span class="audio-dot" id="audioDot"></span>
+  <span id="audioText">Sound: Off</span>
+</button>
+
+<div class="ambient-grid"></div>
+<div class="glow-orb"></div>
+<canvas id="particles"></canvas>
+<div class="vignette"></div>
+
+<!-- 1. HERO -->
+<section id="hero">
+  <div class="content">
+    <div class="avatar-box">
+      <div class="avatar-halo"></div>
+      <img src="file_00000000d3ac821188d79eafe71589eb.png" alt="Suraj">
+    </div>
+
+    <div class="badge">
+      <span class="badge-dot"></span> Available for Opportunities
+    </div>
+
+    <h1>Suraj <span>.dev</span></h1>
+    <p class="sub-title">Python Developer & AI/ML Specialist building modern software architectures.</p>
+
+    <button class="btn" onclick="goTo('objective')">Explore Profile</button>
+  </div>
+  <div class="bottom-note">Haryana, Faridabad, Sec-29</div>
+</section>
+
+<!-- 2. CAREER OBJECTIVE -->
+<section id="objective">
+  <div class="content hidden">
+    <div class="section-label">Vision</div>
+    <h2 class="section-heading">Career Objective</h2>
+
+    <div class="panel">
+      <p style="font-size: 15px; color: var(--text-sub); line-height: 1.7; margin-bottom: 14px;">
+        "To become a professional coder and want to become a successful software agency leader."
+      </p>
+      <div class="tag-group">
+        <span class="tag">AI Integration</span>
+        <span class="tag">Software Leadership</span>
+        <span class="tag">Faridabad</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>Academic Records <span>3-Year Diploma</span></h3>
+      <ul class="data-list">
+        <li>
+          <span class="key">Diploma in CSE (3 Years)</span>
+          <span class="val">RJS College</span>
+        </li>
+        <li>
+          <span class="key">Class 12th (CBSE)</span>
+          <span class="val">Shirdi Sai Baba School (70%)</span>
+        </li>
+        <li>
+          <span class="key">Class 10th (HBSE)</span>
+          <span class="val">Bharti Public School (80%)</span>
+        </li>
+      </ul>
+    </div>
+
+    <br><br>
+    <button class="btn" onclick="goTo('skills')">View Skills</button>
+  </div>
+</section>
+
+<!-- 3. SKILLS -->
+<section id="skills">
+  <div class="content hidden">
+    <div class="section-label">Capabilities</div>
+    <h2 class="section-heading">Technical Stack</h2>
+
+    <div class="panel">
+      <h3>Core Languages <span>Focus</span></h3>
+      <ul class="data-list">
+        <li>
+          <span class="key">Python Programming</span>
+          <span class="val" style="color:var(--cyan);">Professional</span>
+        </li>
+        <li>
+          <span class="key">Artificial Intelligence & ML</span>
+          <span class="val" style="color:var(--cyan);">Core Focus</span>
+        </li>
+      </ul>
+      <div class="tag-group" style="margin-top: 14px;">
+        <span class="tag">C</span>
+        <span class="tag">C++</span>
+        <span class="tag">Java</span>
+        <span class="tag">HTML</span>
+        <span class="tag">Video Editing</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>Work Status <span>Active</span></h3>
+      <p style="font-size: 14px; color: var(--text-sub); line-height: 1.6;">
+        Fresher actively looking for developer roles, software agency positions, and freelance projects.
+      </p>
+    </div>
+
+    <br><br>
+    <button class="btn" onclick="goTo('projects')">Featured Projects</button>
+  </div>
+</section>
+
+<!-- 4. PROJECTS -->
+<section id="projects">
+  <div class="content hidden">
+    <div class="section-label">Portfolio</div>
+    <h2 class="section-heading">Featured Projects</h2>
+
+    <div class="panel">
+      <h3>01. AI Text & Sentiment Classifier <span>NLP</span></h3>
+      <p style="font-size: 14px; color: var(--text-sub); line-height: 1.6; margin-bottom: 12px;">
+        Natural language processing pipeline developed using Python to analyze intent and pattern classification.
+      </p>
+      <div class="tag-group">
+        <span class="tag">Python</span>
+        <span class="tag">NLP</span>
+        <span class="tag">scikit-learn</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>02. Automated Web Data Engine <span>Scripting</span></h3>
+      <p style="font-size: 14px; color: var(--text-sub); line-height: 1.6; margin-bottom: 12px;">
+        High-performance script to scrape multi-page web structures and compile data cleanups directly into spreadsheets.
+      </p>
+      <div class="tag-group">
+        <span class="tag">Python</span>
+        <span class="tag">Automation</span>
+        <span class="tag">Data Mining</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>03. Batch Media Processing Script <span>Media</span></h3>
+      <p style="font-size: 14px; color: var(--text-sub); line-height: 1.6; margin-bottom: 12px;">
+        Command line video automation tool aiding editing workflows by batch-compressing video assets.
+      </p>
+      <div class="tag-group">
+        <span class="tag">Python</span>
+        <span class="tag">FFmpeg</span>
+        <span class="tag">Video Editing</span>
+      </div>
+    </div>
+
+    <br><br>
+    <button class="btn" onclick="goTo('cycler')">Agency Mindset</button>
+  </div>
+</section>
+
+<!-- 5. TERMINAL CYCLER -->
+<section id="cycler">
+  <div class="content hidden">
+    <div class="section-label">Core Philosophy</div>
+    <div class="terminal-cycler">
+      <div id="cyclerLine" class="cycler-line"></div>
+    </div>
+    <button id="cyclerContinue" class="btn" style="display:none;" onclick="goTo('contact')">Let's Connect</button>
+  </div>
+</section>
+
+<!-- 6. CONTACT -->
+<section id="contact">
+  <div class="content hidden">
+    <div class="section-label">Transmission</div>
+    <h2 class="section-heading">Get In Touch</h2>
+
+    <div class="panel">
+      <ul class="data-list">
+        <li>
+          <span class="key">Name</span>
+          <span class="val">Suraj</span>
+        </li>
+        <li>
+          <span class="key">Email</span>
+          <span class="val"><a href="mailto:suraj12pcm@gmail.com" style="color:var(--cyan); text-decoration:none;">suraj12pcm@gmail.com</a></span>
+        </li>
+        <li>
+          <span class="key">Location</span>
+          <span class="val">Haryana, Faridabad, Sec-29</span>
+        </li>
+        <li>
+          <span class="key">Role</span>
+          <span class="val">Python / AI Trainee</span>
+        </li>
+      </ul>
+    </div>
+
+    <br><br>
+    <button class="btn" onclick="goTo('hero')">Back To Top</button>
+  </div>
+</section>
+
+<script>
+const canvas = document.getElementById("particles");
+const ctx = canvas.getContext("2d");
+let width, height, particles=[];
+
+function resizeCanvas(){
+  width = window.innerWidth;
+  height = window.innerHeight;
+  const ratio = window.devicePixelRatio || 1;
+  canvas.width = width * ratio;
+  canvas.height = height * ratio;
+  canvas.style.width = width + "px";
+  canvas.style.height = height + "px";
+  ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+}
+
+function createParticles(){
+  particles = [];
+  const amount = width < 500 ? 30 : 50;
+  for(let i=0; i<amount; i++){
+    particles.push({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      size: Math.random() * 1.4 + 0.3,
+      speed: Math.random() * 0.25 + 0.05,
+      alpha: Math.random() * 0.35 + 0.05
+    });
+  }
+}
+
+function animateParticles(){
+  ctx.clearRect(0, 0, width, height);
+  particles.forEach(p => {
+    p.y -= p.speed;
+    if(p.y < -5){
+      p.y = height + 5;
+      p.x = Math.random() * width;
+    }
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(0, 229, 255, ${p.alpha})`;
+    ctx.fill();
+  });
+  requestAnimationFrame(animateParticles);
+}
+
+resizeCanvas();
+createParticles();
+animateParticles();
+window.addEventListener("resize", () => {
+  resizeCanvas();
+  createParticles();
+});
+
+function goTo(id){
+  const el = document.getElementById(id);
+  if(el){
+    el.scrollIntoView({ behavior:"smooth" });
+  }
+}
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if(entry.isIntersecting){
+      entry.target.classList.add("visible");
+    }
+  });
+}, { threshold: 0.15 });
+
+document.querySelectorAll(".hidden").forEach(el => observer.observe(el));
+
+const audio = document.getElementById("bgAudio");
+const audioDot = document.getElementById("audioDot");
+const audioText = document.getElementById("audioText");
+let isPlaying = false;
+
+function toggleAudio(){
+  if(isPlaying){
+    audio.pause();
+    audioDot.classList.remove("playing");
+    audioText.textContent = "Sound: Off";
+    isPlaying = false;
+  } else {
+    audio.play().then(() => {
+      audioDot.classList.add("playing");
+      audioText.textContent = "Sound: On";
+      isPlaying = true;
+    }).catch(e => {
+      console.warn("Audio error:", e);
+    });
+  }
+}
+
+const statements = [
+  "Building robust <span>Python</span> pipelines.",
+  "Integrating intelligent <span>AI & Machine Learning</span> systems.",
+  "Architecting clean, scalable code.",
+  "Working towards leading future <span>software agencies</span>.",
+  "Ready to build high-impact technology."
+];
+
+let cycleStarted = false;
+function startCycler(){
+  if(cycleStarted) return;
+  cycleStarted = true;
+
+  const line = document.getElementById("cyclerLine");
+  const button = document.getElementById("cyclerContinue");
+  let index = 0;
+
+  function showNext(){
+    line.classList.remove("show");
+    setTimeout(() => {
+      line.innerHTML = statements[index];
+      line.classList.add("show");
+      index++;
+      if(index < statements.length){
+        setTimeout(showNext, 2100);
+      } else {
+        setTimeout(() => {
+          button.style.display = "inline-flex";
+        }, 1200);
+      }
+    }, 500);
+  }
+  showNext();
+}
+
+const cyclerSection = document.getElementById("cycler");
+const cyclerObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if(entry.isIntersecting){
+      startCycler();
+    }
+  });
+}, { threshold: 0.35 });
+
+cyclerObserver.observe(cyclerSection);
+</script>
+
+</body>
+                                        </html>
